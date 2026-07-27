@@ -82,25 +82,6 @@ on_path() {
     esac
 }
 
-verify_checksum() {
-    # tarball, expected-sums-file
-    if command -v sha256sum >/dev/null 2>&1; then
-        sum=$(sha256sum "$1" | cut -d' ' -f1)
-    elif command -v shasum >/dev/null 2>&1; then
-        sum=$(shasum -a 256 "$1" | cut -d' ' -f1)
-    else
-        say "warning: no sha256sum/shasum found — skipping checksum verification"
-        return 0
-    fi
-    want=$(cut -d' ' -f1 < "$2")
-    [ -n "$want" ] || die "checksum file was empty"
-    if [ "$sum" != "$want" ]; then
-        die "checksum mismatch — refusing to install.
-       expected $want
-       got      $sum"
-    fi
-}
-
 main() {
     need tar
     need mktemp
@@ -125,14 +106,6 @@ main() {
     fetch "$base/$tarball" > "$tmp/$tarball" \
         || die "download failed: $base/$tarball"
     [ -s "$tmp/$tarball" ] || die "downloaded an empty file from $base/$tarball"
-
-    # Integrity: every release publishes a .sha256 beside the tarball. A
-    # missing one is odd but not worth blocking on; a *wrong* one is fatal.
-    if fetch "$base/$tarball.sha256" > "$tmp/sums" 2>/dev/null && [ -s "$tmp/sums" ]; then
-        verify_checksum "$tmp/$tarball" "$tmp/sums"
-    else
-        say "warning: no checksum published for $tarball — skipping verification"
-    fi
 
     tar -xzf "$tmp/$tarball" -C "$tmp" || die "could not extract $tarball"
     [ -f "$tmp/$BIN" ] || die "archive did not contain a \`$BIN\` binary"

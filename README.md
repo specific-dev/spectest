@@ -9,8 +9,8 @@ the (private) source repository.
 curl -fsSL https://raw.githubusercontent.com/specific-dev/spectest/main/install.sh | sh
 ```
 
-Detects your platform, downloads the matching release, verifies its checksum,
-and installs `spectest` to `/usr/local/bin` when that is writable, otherwise to
+Detects your platform, downloads the matching release, and installs
+`spectest` to `/usr/local/bin` when that is writable, otherwise to
 `~/.local/bin` (telling you if that is not on your `PATH`). It never uses
 `sudo` — a script piped from the internet should not be asking for your
 password.
